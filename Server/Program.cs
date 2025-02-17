@@ -17,6 +17,13 @@ namespace VgaUI.Server
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+
+            // Add user secrets configuration
+            if (builder.Environment.IsDevelopment())
+            {
+                builder.Configuration.AddUserSecrets<Program>();
+            }
+
             builder.Configuration.AddEnvironmentVariables();
 
             // Add services to the container.
