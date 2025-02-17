@@ -1,0 +1,62 @@
+﻿@using VgaUI.Shared;
+<style>
+    body {
+        background-color: #e2d071;
+    }
+</style>
+
+<div class="vga-background">
+    @if (roundResults != null && roundResults.Players.Any())
+    {
+        <table class="table table-striped">
+            <thead class="thead-light sticky-top text-white">
+                <tr>
+                    <th scope="col" class="col-sm-8" colspan="7"><h4>All Player Scores</h4></th>
+                </tr>
+                <tr>
+                    <th scope="col" class="col-sm-1 text-center">Position</th>
+                    <th scope="col" class="col-sm-2 text-center">Player</th>
+                    <th scope="col" class="col-sm-1 text-center">Gross</th>
+                    @* <th scope="col" class="col-sm-1 text-center">To Par Net</th> *@
+                    @* <th scope="col" class="col-sm-1 text-center">Playing Handicap</th> *@
+                    <th scope="col" class="col-sm-1 text-center">Total Net</th>
+                    <!-- Add other properties as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    displayPlayer = "";
+                }
+                @foreach (var playerResult in roundResults.Players)
+                {
+                    displayPlayer = playerResult.Player;
+                    if (playerResult.IsGuest) displayPlayer = $"{playerResult.Player} (Guest)";
+                    
+                    if (playerResult.Points > 0) strPoints = $"{playerResult.Points}";
+                    else strPoints = "-";
+                    //i++;
+                    <tr>
+                        <td class="text-center">@playerResult.AllPlayersPosition</td>
+                        <td class="text-center">@displayPlayer</td>
+                        <td class="text-center">@playerResult.TotalGross</td>
+                        @* <td class="text-center">@playerResult.ToBaselineParNet</td> *@
+                        @* <td class="text-center">@(playerResult.TotalGross - playerResult.TotalNet) </td> *@
+                        <td class="text-center">@playerResult.TotalNet</td>
+                        <!-- Display other properties -->
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No player results to display.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+    private string displayPlayer = "";
+    private string strPoints = "";
+}

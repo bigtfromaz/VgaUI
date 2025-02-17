@@ -1,0 +1,51 @@
+﻿@using Microsoft.AspNetCore.Components.QuickGrid
+@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore
+@using VgaUI.Shared
+@using VGARazorLib
+
+@page "/stats"
+@inject IConfiguration Configuration
+@inject ILogger<Results> logger
+@inject MongoDBService db
+
+<PageTitle>VGA Player Stats</PageTitle>
+
+
+@code {
+    private List<PlayerStats> playerStats = new();
+    IQueryable<PlayerStats>? queryData;
+    PaginationState pagination = new PaginationState { ItemsPerPage = 200 };
+    //enum Mode { money, scores };
+}
+
+<div class="container-fluid no-border  col-sm-12 vga-background">
+    <div class="container-fluid no-border">
+    <VGARazorLib.PlayerStatsDisplay playerStats="playerStats"></VGARazorLib.PlayerStatsDisplay>
+
+</div>
+</div>
+@code {
+    async Task GetStats(int year = 0)
+    {
+        if (year == 0) year = DateTime.Now.Year;
+
+        logger.LogInformation($"Fetching player round results from the database for {year}.");
+        playerStats = await db.GetPlayerStatsAsync(year);
+        queryData = playerStats.AsQueryable();
+        logger.LogInformation($"Fetched {playerStats.Count} players from the database.");
+        return;
+    }
+    private void redraw(ChangeEventArgs args)
+    {
+        StateHasChanged();
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        await GetStats(0);
+//        selectedOption = mode.Money;
+        StateHasChanged();
+    }
+}
+

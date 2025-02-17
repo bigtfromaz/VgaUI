@@ -1,0 +1,184 @@
+First try:
+Sure, here is a sample .NET Core C# version 10 command line program that is async, uses NLog, and appsettings.json:
+
+```csharp
+using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using NLog;
+using NLog.Extensions.Logging;
+
+namespace MyProgram
+{
+    class Program
+    {
+        static async Task Main(string[] args)
+        {
+            var logger = LogManager.GetCurrentClassLogger();
+            logger.Info("Application started");
+
+            try
+            {
+                var config = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                    .Build();
+
+                var nlogConfig = new NLogLoggingConfiguration(config.GetSection("NLog"));
+                LogManager.Configuration = new NLog.Config.XmlLoggingConfiguration("nlog.config", true, nlogConfig);
+
+                var loggerFactory = LoggerFactory.Create(builder =>
+                {
+                    builder.AddNLog();
+                });
+
+                var myLogger = loggerFactory.CreateLogger<Program>();
+                myLogger.LogInformation("Hello, world!");
+
+                await Task.Delay(1000);
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, "An error occurred");
+            }
+
+            logger.Info("Application ended");
+        }
+    }
+}
+```
+
+To use NLog in your program, you need to add the `NLog.Extensions.Logging` package to your project. You can do this by adding the following line to your `.csproj` file:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="NLog.Extensions.Logging" Version="^1.7.4" />
+</ItemGroup>
+```
+
+You also need to add the `Microsoft.Extensions.Configuration.Json` package to your project for appsettings.json support:
+
+```xml
+<ItemGroup>
+  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="^6.0.0" />
+</ItemGroup>
+```
+
+You can then create an `appsettings.json` file in your project directory with the following contents:
+
+```json
+{
+  "NLog": {
+    "targets": {
+      "file": {
+        "type": "File",
+        "fileName": "${basedir}/logs/${shortdate}.log",
+        "layout": "${longdate} ${level} ${message} ${exception}"
+      }
+    },
+    "rules": [
+      {
+        "logger": "*",
+        "minLevel": "Info",
+        "writeTo": "file"
+      }
+    ]
+  }
+}
+```
+
+This will configure NLog to write log messages to a file in the `logs` directory of your project.
+
+I hope this helps!
+
+Source: Conversation with Bing, 9/14/2023
+(1) NLog configuration in appsettings.json instead of nlog.config in .NET Core. https://stackoverflow.com/questions/56246416/nlog-configuration-in-appsettings-json-instead-of-nlog-config-in-net-core.
+(2) Configure NLog in .NET Core Application - Programming in CSharp. https://programmingcsharp.com/nlog-net-core/.
+(3) c# - How to Properly Pull NLog DB ConnectionString from appsettings .... https://stackoverflow.com/questions/68070775/how-to-properly-pull-nlog-db-connectionstring-from-appsettings-json.
+(4) c# - Get Nlog values from appsettings.json - Stack Overflow. https://stackoverflow.com/questions/56743110/get-nlog-values-from-appsettings-json.
+(5) undefined. http://www.nlog-project.org/schemas/NLog.xsd.
+(6) undefined. http://www.w3.org/2001/XMLSchema-instance.
+
+Second try
+
+create a .net core command line project that uses a nuget command line parser package
+Sure, I can help you with that. Here are the steps to create a .NET Core command-line project that uses the CommandLineParser NuGet package:
+
+1. Open a command prompt or terminal window.
+2. Navigate to the directory where you want to create your project.
+3. Run the following command to create a new .NET Core console application:
+
+```
+dotnet new console
+```
+
+4. Run the following command to add the CommandLineParser package to your project:
+
+```
+dotnet add package CommandLineParser
+```
+
+5. Open your project in a text editor or IDE of your choice.
+6. Add the following using statement at the top of your `Program.cs` file:
+
+```csharp
+using CommandLine;
+```
+
+7. Define a class that describes the parameters you want to allow users of your console app to specify. For example:
+
+```csharp
+class Options
+{
+    [Option('v', "verbose", Required = false, HelpText = "Set output to verbose messages.")]
+    public bool Verbose { get; set; }
+
+    [Option('i', "input", Required = true, HelpText = "Input file to be processed.")]
+    public string InputFile { get; set; }
+
+    [Option('o', "output", Required = true, HelpText = "Output file.")]
+    public string OutputFile { get; set; }
+}
+```
+
+8. In your `Main` method, parse the command-line arguments using `CommandLine.Parser.Default.ParseArguments` and handle them as needed. For example:
+
+```csharp
+static void Main(string[] args)
+{
+    Parser.Default.ParseArguments<Options>(args)
+        .WithParsed<Options>(o =>
+        {
+            // Handle options
+            if (o.Verbose)
+            {
+                Console.WriteLine("Verbose output enabled.");
+            }
+            Console.WriteLine($"Input file: {o.InputFile}");
+            Console.WriteLine($"Output file: {o.OutputFile}");
+        });
+}
+```
+
+That's it! You now have a .NET Core command-line project that uses the CommandLineParser NuGet package for parsing command-line arguments.
+
+Source: Conversation with Bing, 9/14/2023
+(1) NuGet Gallery | CommandLineParser 2.9.1. https://www.nuget.org/packages/CommandLineParser.
+(2) NuGet Gallery | CoreCompat.CommandLineParser 2.0.275-r002. https://www.nuget.org/packages/CoreCompat.CommandLineParser/.
+(3) GitHub - commandlineparser/commandline: The best C# command line parser .... https://github.com/commandlineparser/commandline.
+(4) Can you recommend any NuGet packages for console app argument parsing .... https://stackoverflow.com/questions/70855840/can-you-recommend-any-nuget-packages-for-console-app-argument-parsing-and-pipeli.
+(5) undefined. https://www.nuget.org/packages/CommandLineParser/.
+(6) Create .NET Core Projects with the Command Line. https://www.youtube.com/watch?v=rZFIbbxsGmc.
+(7) .NET Core Command Line Interface (CLI) | Learn the Basics. https://www.youtube.com/watch?v=fvPGTLtP9wg.
+(8) (#4) How to create asp.net core mvc web application (using Visual Studio 2019 & CLI) | .Net Core 3.. https://www.youtube.com/watch?v=_AlcrY5YEww.
+(9) dotnet new <TEMPLATE> - .NET CLI | Microsoft Learn. https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new.
+(10) ASP.NET Core Command Line Interface - Dot Net Tutorials. https://dotnettutorials.net/lesson/asp-net-core-command-line-interface/.
+(11) Tutorial: Create a .NET tool - .NET CLI | Microsoft Learn. https://learn.microsoft.com/en-us/dotnet/core/tools/global-tools-how-to-create.
+(12) Create a .NET console application using Visual Studio Code - .NET. https://learn.microsoft.com/en-us/dotnet/core/tutorials/with-visual-studio-code.
+(13) Using the CommandLineParser NuGet package to handle your command line. https://robertwray.co.uk/blog/using-the-commandlineparser-nuget-package-to-handle-your-command-line.
+(14) c# - What is the Command Line Parser package from Nuget "types .... https://stackoverflow.com/questions/51281509/what-is-the-command-line-parser-package-from-nuget-types-argument-expecting.
+(15) NuGet Command-Line Interface (CLI) Reference | Microsoft Learn. https://learn.microsoft.com/en-us/nuget/reference/nuget-exe-cli-reference.
+(16) c# - Command Line Parser NUGet Package getting simple example program .... https://stackoverflow.com/questions/58941148/command-line-parser-nuget-package-getting-simple-example-program-to-work.
+(17) undefined. https://www.youtube.com/channel/UC3RKA4vunFAfrfxiJhPEplw?sub_confirmation=1.
+(18) undefined. https://www.youtube.com.
+

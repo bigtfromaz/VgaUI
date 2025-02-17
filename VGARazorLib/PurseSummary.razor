@@ -1,0 +1,88 @@
+﻿@using VgaUI.Shared;
+@using VGARazorLib;
+
+
+<div class="vga-background">
+    <p> </p>
+    <table class="table table-striped">
+        <thead class="thead-light sticky-top text-white">
+            <tr>
+                <th scope="col" class="col-sm-1" colspan="1"><h4>Purse Summary</h4></th>
+                <th scope="col" class="col-sm-1 text-left" colspan="6">
+                    <button class="btn btn-primary" @onclick="Recalculate">Recalculate</button>
+
+                </th>
+            </tr>
+            <tr>
+                <th scope="col" class="col-sm-1 text-center">Description</th>
+                <th scope="col" class="col-sm-1 text-center">Total</th>
+                <th scope="col" class="col-sm-1 text-center">CTPs</th>
+                <th scope="col" class="col-sm-1 text-center">Low Net</th>
+                <th scope="col" class="col-sm-1 text-center">Skins</th>
+                <th scope="col" class="col-sm-1 text-center">Guests</th>
+                <th scope="col" class="col-sm-1 text-center">Members</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td scope="col" class="col-sm-1 text-center"><strong>Participants</strong></td>
+                <td scope="col" class="col-sm-1 text-center"><strong>NA</strong></td>
+                <td scope="col" class="col-sm-1 text-center">@roundResults.CTPParticipants</td>
+                <td scope="col" class="col-sm-1 text-center">@roundResults.TotalLowNetParticipants</td>
+                <td scope="col" class="col-sm-1 text-center">@roundResults.TotalSkinParticipants</td>
+                <td scope="col" class="col-sm-1 text-center">@roundResults.NumGuests</td>
+                <td scope="col" class="col-sm-1 text-center">@roundResults.NumMembers</td>
+            </tr>
+            <tr>
+                <td class="text-center"><strong>Entry Fee</strong></td>
+                <td class="text-center"><strong>NA</strong></td>
+                <td class="text-center">@Helpers.Money(@roundResults.CurrentPurseSettings.CTPContributionAmount)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.CurrentPurseSettings.LowNetContributionAmount)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.CurrentPurseSettings.BirdieContributionAmount)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.CurrentPurseSettings.GuestFeeToClub)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.CurrentPurseSettings.RoundFeeToClub)</td>
+            </tr>
+            <tr>
+                <td class="text-center"><strong>Amount Collected</strong></td>
+                <td class="text-center"><strong>@Helpers.Money(@roundResults.TotalCollected)</strong></td>
+                <td class="text-center">@Helpers.Money(@roundResults.TotalCtpPot)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.TotalLowNetPot)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.TotalSkinPot)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.GuestFeesToClub)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.MemberFeesToClub)</td>
+            </tr>
+            <tr>
+                <td class="text-center"><strong>Purse to be Paid</strong></td>
+                <td class="text-center"><strong>@Helpers.Money(@roundResults.TotalPursePaid)</strong></td>
+                <td class="text-center">@Helpers.Money(@roundResults.PaidCTPs)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.PaidLowNet)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.PaidSkins)</td>
+                <td class="text-center">-</td>
+            </tr>
+            <tr>
+                <td class="text-center"><strong>Total To Club</strong></td>
+                <td class="text-center"><strong>@Helpers.Money(@roundResults.TotalToClub)</strong></td>
+                <td class="text-center">@Helpers.Money(@roundResults.LeftoverCTP)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.LeftoverLowNet)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.LeftOverSkin)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.GuestFeesToClub)</td>
+                <td class="text-center">@Helpers.Money(@roundResults.MemberFeesToClub)</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+    public void Recalculate()
+    {
+        if (roundResults != null)
+        {
+            _ = roundResults.CalculateResults();
+            StateHasChanged();
+        }
+    }
+
+}

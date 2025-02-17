@@ -1,0 +1,64 @@
+﻿
+@using VgaUI.Shared;
+
+<div style="background-color: #e2d071;">
+    @if (roundResults != null && roundResults.Players.Any())
+    {
+        <br />
+        <table class="table table-striped">
+            <thead class="thead-light sticky-top text-white">
+                <tr>
+                    <th scope="col" class="col-sm-10" colspan="8"><h4>Pay to Players</h4></th>
+                </tr>
+                <tr>
+                    <th scope="col" class="col-sm-2 text-left">Player</th>
+                    <th scope="col" class="col-sm-2 text-center">Low Net</th>
+                    <th scope="col" class="col-sm-1 text-center">CTPs</th>
+                    <th scope="col" class="col-sm-1 text-center">Skins</th>
+                    <th scope="col" class="col-sm-1 text-center">Amount</th>
+                    <th scope="col" class="col-sm-1 text-center">Paid</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    i = 0;
+                    totalDisbursed = 0;
+                }
+                @foreach (var playerResult in roundResults.GetDisbursementsByTotal())
+                {
+                    i++;
+                    totalDisbursed += (int) playerResult.TotalPurse;
+                    if (playerResult.TotalPurse > 0)
+                    {
+                        <tr>
+                            <td class="text-left">@playerResult.Player</td>
+                            <td class="text-center">@Helpers.MoneyDisplay(playerResult.LowNetPurse)</td>
+                            <td class="text-center">@Helpers.MoneyDisplay(@playerResult.CtpPurse)</td>
+                            <td class="text-center">@Helpers.MoneyDisplay(@playerResult.SkinsPurse)</td>
+                            <td class="text-center">@Helpers.MoneyDisplay(playerResult.TotalPurse)</td>
+                            <td class="text-center">
+                                <input class="p-1 border bg-light" type="checkbox" disabled="@(!UnLocked)" @bind="@playerResult.IsPaid" />
+                            </td>
+                            @* <td class="text-center">@playerResult.IsPaid</td> *@
+                        </tr>
+                    }
+                }
+                @($"Total disbursed: {Helpers.Money(totalDisbursed)}")
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No disbursements to display.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+    [Parameter]
+    public bool UnLocked { get; set; } = false;
+
+    private int i;
+    private int totalDisbursed;
+}

@@ -1,0 +1,96 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore
+@using VgaUI.Shared
+
+@page "/"
+@inject IConfiguration Configuration
+@inject ILogger<Results> logger
+@inject MongoDBService db
+
+<PageTitle>VGA Round Results</PageTitle>
+
+
+@code {
+    List<RoundInfo> rounds = new();
+    RoundResults results = new();
+}
+@* <h1>Round Results</h1> *@
+<div class="no-border">
+        <h4><label for="selectRound"><b>Choose another round to display:</b></label></h4>
+    <select style="font-size: 20px;" id="selectRound" @onchange="GetSelectedCourse">
+        <option value="">Select another round...</option>
+        @foreach (var round in rounds)
+        {
+            <option value="@round.Id">
+                @($"{round.DateOfPlay} - {round.CourseName}")
+            </option>
+        }
+    </select>
+    <p> </p>
+</div>
+<div class="no-border vga-heading-background text-white">
+    <h3>Round Results for @results.CourseName played on @results.DateOfPlay</h3>
+</div>
+<div class="no-border">
+        <b>Purse Summary: Total Collected:</b> @Helpers.Money(@results.TotalCollected)
+        <b>Total Paid:</b> @Helpers.Money(@results.TotalPursePaid)
+        <b>Total to club:</b> @Helpers.Money(@results.TotalToClub)
+        <p> </p>
+        <p> </p>
+        <p> </p>
+        <p> </p>
+    <VGARazorLib.TournamentResults roundResults="results"></VGARazorLib.TournamentResults>
+</div>
+
+
+@code {
+
+    async Task GetSelectedCourse(ChangeEventArgs e)
+    {
+        if (e.Value == null) return;
+        var selectedId = e.Value.ToString();
+        if (selectedId == null) return;
+
+        await GetSelectedCourse(selectedId);
+    }
+    async Task GetSelectedCourse(string Id)
+    {
+        logger.LogInformation($"Attempting to fetch Id {Id} from the database.");
+        results = await db.GetRoundResultsAsync(Id);
+        logger.LogInformation($"Fetched Id {Id} from the database. Selected Course: {results.CourseName}, Played on: {results.DateOfPlay}");
+        results.CalculateResults();
+
+
+        if (results != null)
+        {
+            StateHasChanged();
+        }
+    }
+    async Task GetRoundList(int limit = 10)
+    {
+        if (rounds.Count == 0)
+        {
+            logger.LogInformation($"Attempting to fetch a list of rounds from the database Limit={limit}.");
+            rounds = await db.GetRoundListOfficial(limit);
+            logger.LogInformation($"Fetched {rounds.Count} rounds from the database.");
+        }
+        StateHasChanged();
+        return;
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        await GetRoundList(104);
+        if (rounds != null && rounds.Count > 0)
+        {
+            RoundInfo defInfo = new RoundInfo()
+                {
+                    CourseName = "no courses found",
+                    Id = ""
+                };
+            string id = rounds.FirstOrDefault(defInfo).Id ?? "";
+
+            await GetSelectedCourse(id);
+        }
+    }
+}

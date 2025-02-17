@@ -1,0 +1,50 @@
+﻿@using VgaUI.Shared;
+@using VGARazorLib;
+
+<div class="vga-background">
+    @if (roundResults != null && roundResults.Players.Any())
+    {
+        <table class="table table-striped ">
+            <thead class="thead-light sticky-top text-white">
+                <tr>
+                    <th scope="col" class="col-sm-5" colspan="3"><h4>Skins</h4></th>
+                </tr>
+                <tr>
+                    <th scope="col" class="col-sm-2 text-center">Player</th>
+                    <th scope="col" class="col-sm-2 text-center">Skins</th>
+                    <th scope="col" class="col-sm-1 text-center">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    i = 0;
+                }
+                @foreach (var playerResult in roundResults.Players)
+                {
+                    @if (@playerResult.SkinsDetails.Length > 0)
+                    {
+                        i++;
+                        <tr>
+                            <td class="text-center">@playerResult.Player</td>
+                            <td class="text-center">@playerResult.SkinsDetailsGG </td>
+                            <td class="text-center">@Helpers.Money(@playerResult.SkinsPurse)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+        <b>Skins Paid: @Helpers.Money(roundResults.TotalSkinPaid) </b>
+        <p></p>
+    }
+    else
+    {
+        <p>No Skins recorded</p>
+    }
+</div>
+@code
+{
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+    private int i;
+
+}

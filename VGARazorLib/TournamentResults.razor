@@ -1,0 +1,34 @@
+﻿@using VgaUI.Shared;
+@using VGARazorLib;
+
+<div class="container-fluid no-border bg-vga-background">
+    <div>
+        <div class="col-md-12 bg-light">
+            <VGARazorLib.Points roundResults="roundResults"></VGARazorLib.Points>
+        </div>
+        <div class="col-md-12 bg-light">
+            <div class="col-md-12 bg-light">
+                <VGARazorLib.CTPs roundResults="roundResults"></VGARazorLib.CTPs>
+            </div>
+            <div class="col-md-12 bg-light">
+                <VGARazorLib.Skins roundResults="roundResults"></VGARazorLib.Skins>
+            </div>
+        </div>
+        <div class="col-md-12 bg-light">
+            <VGARazorLib.Disbursements roundResults="roundResults"></VGARazorLib.Disbursements>
+        </div>
+        <div class="col-md-12 bg-light">
+            <VGARazorLib.Flights roundResults="roundResults"></VGARazorLib.Flights>
+        </div>
+        <div class="col-md-12 bg-light">
+            <VGARazorLib.AllPlayers roundResults="roundResults"></VGARazorLib.AllPlayers>
+        </div>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+
+}

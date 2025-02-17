@@ -1,0 +1,14 @@
+﻿@code {
+    [Parameter] public ResultsWrapper ResultsWrapper { get; set; } = default!;
+}
+
+@if (ResultsWrapper.RoundResults != null && ResultsWrapper.RoundResults.Players.Any())
+{
+    <p> </p>
+    <h1><strong>@($"Results for {ResultsWrapper.RoundResults.CourseName} played on {ResultsWrapper.RoundResults.DateOfPlay}")</strong></h1>
+    <VGARazorLib.TournamentResults roundResults="ResultsWrapper.RoundResults"></VGARazorLib.TournamentResults>
+}
+else
+{
+    <p>No player results to display.</p>
+}

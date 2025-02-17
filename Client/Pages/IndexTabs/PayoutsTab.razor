@@ -1,0 +1,24 @@
+﻿@code {
+    [Parameter] public ResultsWrapper ResultsWrapper { get; set; } = default!;
+}
+
+<h1><strong>Payout Tracking</strong></h1>
+<div class="vga-background container-fluid">
+    <p>&nbsp;</p>
+    <h4><b>Record payments to players - Course name:</b> @ResultsWrapper.RoundResults.CourseName <b>Date:</b> @ResultsWrapper.RoundResults.DateOfPlay.ToString()</h4>
+    <RoundHeader HtmlMessage="<strong>Check the boxes to record who you paid, and click on Save when you are done."></RoundHeader>
+</div>
+
+@if (ResultsWrapper.RoundResults == null)
+{
+    <p><em>add code to transfer control to history, or load a spreadsheet.</em></p>
+}
+else
+{
+    <div class="vga-background no-border">
+        <VGARazorLib.SidePot></VGARazorLib.SidePot>
+    </div>
+    <div class="vga-background no-border">
+        <VGARazorLib.Disbursements roundResults="ResultsWrapper.RoundResults" UnLocked=true></VGARazorLib.Disbursements>
+    </div>
+}

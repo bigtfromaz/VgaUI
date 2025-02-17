@@ -1,0 +1,71 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UserSecretsId>94bcbbae-f3dc-476d-a2a2-149393bbebb0</UserSecretsId>
+
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="8.0.0" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+		<PackageReference Include="MongoDB.Bson" Version="2.28.0" />
+		<PackageReference Include="MongoDB.Driver" Version="2.28.0" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.5.2" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.5.2" />
+		<PackageReference Include="coverlet.collector" Version="6.0.2">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\ExcelInterface\ExcelInterface.csproj" />
+		<ProjectReference Include="..\Shared\VgaUI.Shared.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Update="pursesettings.json">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\Dobson Ranch.xls">
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\Estrella Complete Leaderboard.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\GCU Incomplete Leaderboard.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\UnionHills.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\Valley Golfers Association Leaderboard GCU.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\VGA Aguila Tie.xls">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\VGA Leaderboard.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\VGA Sample Master Roster.xlsx">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\VGA-IT-ONLY Leaderboard-one flight.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\VGA-IT-ONLY Leaderboard-two flights.xls">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Update="Spreadsheets\Wigwam.xls">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
+</Project>

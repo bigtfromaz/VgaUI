@@ -1,0 +1,14 @@
+{
+  "CTPContributionAmount": 1,
+  "LowNetContributionAmount": 6,
+  "BirdieContributionAmount": 3,
+  "LargeFlightThreshold": 20,
+  "LargeFlightPlace": [
+    0.5,
+    0.3
+  ],
+  "SmallFlightPlace": [
+    0.5,
+    0.3
+  ]
+}

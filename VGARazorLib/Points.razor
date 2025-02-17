@@ -1,0 +1,51 @@
+﻿@using VgaUI.Shared;
+<div class="vga-background no-border" >
+    @if (roundResults != null && roundResults.Players.Any())
+    {
+        foreach (int flight in roundResults.Flights)
+        {
+            <br>
+            <table class="table table-striped">
+                <thead class="thead-light sticky-top text-white" >
+                    <tr>
+                        <th scope="col" class="col-sm-6" colspan="6"><h4>@($"Big Dogs Flight {flight.ToString()} of {roundResults.Flights.Count()}")</h4></th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="col-sm-1 text-center">Pos.</th>
+                        <th scope="col" class="col-sm-3 text-center">Player</th>
+                        <th scope="col" class="col-sm-2 text-center">Points</th>
+                        <th scope="col" class="col-sm-2 text-center">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PlayerResult playerResult in roundResults.GetFligthPlayers(flight))
+                    {
+                        @if (playerResult.Points > 0)
+                        {
+                            <tr>
+                            <td class="text-center">@playerResult.FlightPosition</td>
+                            <td class="text-center">@playerResult.Player</td>
+                            <td class="text-center">@playerResult.Points</td>
+                            <td class="text-center">@Helpers.MoneyDisplay(playerResult.LowNetPurse)</td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            <b>@($"Flight {flight} Paid: {Helpers.Money(roundResults.GetFlightTotalPaid(flight))}")</b>
+            <br>
+        }
+        <b>@($"Total Low-net Paid: {Helpers.Money(roundResults.PaidLowNet)}")</b>
+        <br>
+        <br>
+    }
+    else
+    {
+        <p>No player results to display.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+}

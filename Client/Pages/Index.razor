@@ -1,0 +1,368 @@
+﻿@page "/"
+@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+@using VgaUI.Client
+@using VgaUI.Client.Pages
+@using VgaUI.Client.Pages.IndexTabs
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject ResultsWrapper resultsWrapper
+@inject NavigationManager NavManager
+@inject ActiveTabService ActiveTabService
+
+@attribute [Authorize]
+
+<PageTitle>VGA Purses</PageTitle>
+
+@code {
+    PurseSettings? defaultSettings;
+    List<RoundInfo> rounds = new();
+    private string HtmlMessage { get; set; } = string.Empty;
+    private string activeTab = "Home";
+    static string GoToHomeTab() => "Home";
+    static string GoToResultsTab() => "Results";
+    static string GoToUploadTab() => "Upload";
+    static string GoToPayoutsTab() => "Payouts";
+    private bool AllowCourseNameEdits = false;
+    private bool AllowDatePlayedEdits = false;
+    bool isToday;
+    bool hasTodayRound = true;
+    DateOnly today = DateOnly.FromDateTime(DateTime.Now.Date);
+    private bool collapseNavMenu = false;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private bool UnLocked = false; // Define the UnLocked variable
+
+    protected override void OnInitialized()
+    {
+        HtmlMessage = "\n<b>Important note: Use the \"Upload\" tab above upload a new GG Spreadsheet.</b> Changes are not\ncommitted to the database until you click on the \"Save\" button.\nUse the Recalculate button to see the effect of you changes.";
+        StateHasChanged();
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private void ChangeActiveTab(string tabName)
+    {
+        activeTab = tabName;
+    }
+
+    async Task GetSelectedCourse(ChangeEventArgs e)
+    {
+        try
+        {
+            if (e.Value is null) return;
+            var selectedValue = e.Value.ToString();
+            if (selectedValue is null) return;
+            await GetSelectedCourse(selectedValue);
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    async Task GetSelectedCourse(string id)
+    {
+        try
+        {
+            var round = await GetRoundResults(id);
+            if (round != null)
+            {
+                resultsWrapper.RoundResults = round;
+            }
+            else
+            {
+                resultsWrapper.RoundResults = new RoundResults();
+            }
+
+            if (resultsWrapper.RoundResults != null)
+            {
+                Console.WriteLine($"Selected Course: {resultsWrapper.RoundResults.CourseName}, Played on: {resultsWrapper.RoundResults.DateOfPlay}");
+                SetIsToday();
+                await SetTodayRound();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+    async Task<RoundResults?> GetRoundResults(string id)
+    {
+        return await Http.GetFromJsonAsync<RoundResults>($"api/RoundResults/{id}").ConfigureAwait(false) ?? null;
+    }
+
+    async Task GetRoundList()
+    {
+        rounds = await Http.GetFromJsonAsync<List<RoundInfo>>("api/RoundResults/list/?limit=20").ConfigureAwait(false) ?? new();
+    }
+
+    async Task StoreResults()
+    {
+        try
+        {
+            if (resultsWrapper.RoundResults != null)
+            {
+                _ = resultsWrapper.RoundResults.CalculateResults();
+                HtmlMessage = "Saving the round...";
+                StateHasChanged();
+                HttpResponseMessage xxx = await Http.PostAsJsonAsync<RoundResults>("api/RoundResults", resultsWrapper.RoundResults);
+                resultsWrapper.RoundResults = await xxx.Content.ReadFromJsonAsync<RoundResults>() ?? throw new Exception("Received a null response from the server response when saving the round");
+                HtmlMessage = "Round Saved";
+                await GoToFirstRound();
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    void Refresh()
+    {
+        NavManager.NavigateTo(NavManager.Uri, forceLoad: true);
+    }
+
+    async Task DeleteResults()
+    {
+        if (resultsWrapper.RoundResults != null)
+        {
+            HtmlMessage = "Deleting the round...";
+            StateHasChanged();
+            HtmlMessage = $"Deleted Round Course: {resultsWrapper.RoundResults.CourseName}, Played on: {resultsWrapper.RoundResults.DateOfPlay}";
+            var response = await Http.DeleteAsync($"api/RoundResults/{resultsWrapper.RoundResults.Id}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                resultsWrapper.RoundResults = new RoundResults();
+            }
+            else
+            {
+                HtmlMessage = $"Failed to delete the round. HTTP {response.StatusCode} - Content: {response.Content} ";
+            }
+
+            await GoToFirstRound();
+            Refresh();
+        }
+    }
+
+    public void Recalculate()
+    {
+        if (resultsWrapper.RoundResults != null)
+        {
+            _ = resultsWrapper.RoundResults.CalculateResults();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveRound()
+    {
+        await StoreResults();
+        await SetTodayRound();
+        Refresh();
+    }
+
+    async Task SingleUpload(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            MemoryStream ms = new MemoryStream();
+            await e.File.OpenReadStream().CopyToAsync(ms);
+            VGA.ExcelInterface spreadSheet;
+            spreadSheet = new VGA.ExcelInterface(defaultSettings ?? new PurseSettings());
+
+            resultsWrapper.RoundResults = spreadSheet.LoadLeaderboard(ms);
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            ActiveTabService.OnChange += StateHasChanged;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        ActiveTabService.OnChange -= StateHasChanged;
+    }
+
+    private void HandleTabChange(string tabName)
+    {
+        StateHasChanged();
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var uri = NavManager.ToAbsoluteUri(NavManager.Uri);
+        var queryStrings = System.Web.HttpUtility.ParseQueryString(uri.Query);
+        string? lockString = queryStrings.Get("Unlocked");
+        UnLocked = bool.TryParse(lockString, out var result) ? result : false;
+
+        await GoToFirstRound().ConfigureAwait(false);
+
+        _ = resultsWrapper.RoundResults?.CalculateResults();
+
+        try
+        {
+            defaultSettings = await Http.GetFromJsonAsync<PurseSettings>("PurseSettings/Default") ?? new();
+        }
+        catch (AccessTokenNotAvailableException exception)
+        {
+            exception.Redirect();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task GoToFirstRound()
+    {
+        try
+        {
+            await GetRoundList().ConfigureAwait(false);
+            string newest_ID_in_DB = rounds?.FirstOrDefault(new RoundInfo { CourseName = "no courses found", Id = "" })?.Id ?? "";
+
+            if (resultsWrapper.RoundResults?.Players.Count == 0)
+            {
+                await GetSelectedCourse(newest_ID_in_DB).ConfigureAwait(false);
+            }
+            SetIsToday();
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private async Task SetTodayRound()
+    {
+        try
+        {
+            string newest_ID_in_DB = rounds?.FirstOrDefault(new RoundInfo { CourseName = "no courses found", Id = "" })?.Id ?? "";
+
+            if (newest_ID_in_DB.Length == 0)
+            {
+                hasTodayRound = false;
+                return;
+            }
+
+            RoundResults? round = await GetRoundResults(newest_ID_in_DB);
+            if (round == null)
+            {
+                hasTodayRound = false;
+                return;
+            }
+
+            if (round.DateOfPlay == today)
+            {
+                hasTodayRound = true;
+            }
+            else
+            {
+                hasTodayRound = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            HtmlMessage = $"Error: {ex.Message}";
+        }
+    }
+
+    private void SetIsToday()
+    {
+        AllowDatePlayedEdits = false;
+        if (resultsWrapper.RoundResults.DateOfPlay == today)
+        {
+            isToday = true;
+        }
+        else
+        {
+            isToday = false;
+        }
+        AllowCourseNameEdits = UnLocked || isToday;
+        AllowDatePlayedEdits = UnLocked;
+    }
+
+    private void HandleChildChanged()
+    {
+        Recalculate();
+    }
+}
+
+<!-- Menu -->
+<p> </p>
+<h1><strong>Valley Golfers Purse Calculations!</strong></h1>
+<p></p>
+<div>
+    <label style="font-size: 1.5em;">
+        <b>Save your work before selecting a different round: </b>
+        <select @onchange="GetSelectedCourse">
+            <option value="">Select a different round...</option>
+            @foreach (var round in rounds)
+            {
+                <option value="@round.Id">@($"{round.DateOfPlay} - {round.CourseName}")</option>
+            }
+        </select>
+    </label>
+</div>
+<p></p>
+<div class="@NavMenuCssClass nav-scroll">
+    <nav class="nav">
+        @if (!hasTodayRound)
+        {
+            <a class="nav-item nav-link nav-link-custom nav-item-spacing @(activeTab == "Upload" ? "active" : "")" @onclick="() => ChangeActiveTab(GoToUploadTab())">
+                <span class="oi oi-plus" aria-hidden="true"></span> Upload
+            </a>
+        }
+        <a class="nav-item nav-link nav-link-custom nav-item-spacing @(activeTab == "Home" ? "active" : "")" @onclick="() => ChangeActiveTab(GoToHomeTab())">
+            <span class="oi oi-home" aria-hidden="true"></span> Purse Selections
+        </a>
+        <a class="nav-item nav-link nav-link-custom nav-item-spacing @(activeTab == "Results" ? "active" : "")" @onclick="() => ChangeActiveTab(GoToResultsTab())">
+            <span class="oi oi-list-rich" aria-hidden="true"></span> Results
+        </a>
+        <a class="nav-item nav-link nav-link-custom @(activeTab == "Payouts" ? "active" : "")" @onclick="() => ChangeActiveTab(GoToPayoutsTab())">
+            <span class="oi oi-dollar" aria-hidden="true"></span> Payouts
+        </a>
+    </nav>
+    <p></p>
+</div>
+
+<!-- Home Section -->
+@if (activeTab == "Home")
+{
+    <HomeTab ResultsWrapper="resultsWrapper" AllowCourseNameEdits="AllowCourseNameEdits" AllowDatePlayedEdits="AllowDatePlayedEdits" IsToday="isToday" DeleteResults="DeleteResults" HtmlMessage="@HtmlMessage" HandleChildChanged="HandleChildChanged" />
+}
+
+<!-- Upload Section -->
+@if (activeTab == "Upload" || ActiveTabService.ActiveTab == "Upload")
+{
+    <UploadTab ResultsWrapper="resultsWrapper" AllowDatePlayedEdits="AllowDatePlayedEdits" SingleUpload="SingleUpload" SaveRound="SaveRound" />
+}
+
+<!-- Payouts Section -->
+@if (activeTab == "Payouts")
+{
+    <PayoutsTab ResultsWrapper="resultsWrapper" />
+}
+
+<!-- Results Section -->
+@if (activeTab == "Results")
+{
+    <ResultsTab ResultsWrapper="resultsWrapper" />
+}

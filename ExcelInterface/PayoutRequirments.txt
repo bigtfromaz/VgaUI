@@ -1,0 +1,34 @@
+Cells
+
+Flight 1 1st: =IF(G6<78,INT(G6*60%),INT(G6/2))
+IF there is less than $78 one flight 1 winner get 60% of the pot. Otherwise it pays 50%.
+
+Flight 1 2nd: =IF(G6<78,INT(G6-G2),INT(G6*30%))
+IF there is less than $78 one flight 2 winner gets the remainder of the pot. Otherwise it pays 30%.
+
+Flight 1 3rd: =IF(G6>72,INT(G2-G3),"")
+IF there is less than $72 one flight 2 winner gets the remainder of the pot. Otherwise it pays 30%.
+
+Disbursement calculations:
+
+Flight balancing is achieved by dividing the players by the number of flights. If there is a remainder
+it will be less than the number of flights.
+e.g., 
+3 flights 36 players yields 12 players in each flight.
+3 flights 37 players yields 13 players in flight 1, and 12 players in flights 2 and 3.
+3 flights 38 players yields 13 players in flight 1 and flight 2, 12 players  flight 3.
+
+Audit: No flight is allowed to more than 1 player extra player above any other flight.
+
+
+
+Net funds allocated:
+
+The pot for each flight is calculated by multiplying the number of players in the 
+flight by the Low Net entry fee ($6 at the time this was written).
+
+Each flight's pot is paid out as follows. If there are more than 13 players in a 
+flight the payouts are 1-60%, 2-30%, 3-Remainder. Otherwise they are 1-50%, 2-30%, 3-Remainder
+
+Skins are paid out Skins total/number of skins = value per skin as decimal.
+Payout per player is (player's skin count * skin) as INT.

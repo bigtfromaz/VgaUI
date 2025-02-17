@@ -1,0 +1,31 @@
+﻿@code {
+    [Parameter] public ResultsWrapper ResultsWrapper { get; set; } = default!;
+    [Parameter] public bool AllowDatePlayedEdits { get; set; }
+    [Parameter] public EventCallback<InputFileChangeEventArgs> SingleUpload { get; set; }
+    [Parameter] public EventCallback SaveRound { get; set; }
+}
+
+<h1>Upload GG Leaderboard Spreadsheet</h1>
+<p role="status">Click the following button and select a Leader Board spreadsheet that you downloaded from Golf Genius</p>
+<InputFile OnChange="SingleUpload" class="btn btn-primary"></InputFile>
+
+@if (ResultsWrapper.RoundResults != null)
+{
+    <EditForm Model="@ResultsWrapper.RoundResults" OnValidSubmit="SaveRound">
+        <div>
+            <div>
+                <label>
+                    Course Name:
+                    <InputText @bind-Value="@ResultsWrapper.RoundResults.CourseName" />
+                </label>
+            </div>
+            <div>
+                <label>
+                    Production Date:
+                    <InputDate @bind-Value="ResultsWrapper.RoundResults.DateOfPlay" disabled="@(!AllowDatePlayedEdits)" />
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+    </EditForm>
+}

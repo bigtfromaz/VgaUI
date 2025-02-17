@@ -1,0 +1,49 @@
+﻿@using VgaUI.Shared;
+
+<div class="vga-background no-border bg-vga-background">
+    @if (roundResults != null && roundResults.Players.Any())
+    {
+        total = 0;
+        foreach (int flight in roundResults.Flights)
+        {
+            <br>
+            total += roundResults.GetFlightTotalPaid(flight);
+            <table class="table table-striped">
+                <thead class="thead-light sticky-top text-white" >
+                    <tr>
+                        <th scope="col" class="col-sm-6" colspan="6"><h4>@($"Scores for Flight {flight.ToString()} of {roundResults.Flights.Count()}")</h4></th>
+                    </tr>
+                    <tr>
+                        <th scope="col" class="col-sm-1 text-center">Place</th>
+                        <th scope="col" class="col-sm-3 text-center">Player</th>
+                        <th scope="col" class="col-sm-2 text-center">Gross</th>
+                        @* <th scope="col" class="col-sm-2 text-center">Playing Handicap</th> *@
+                        <th scope="col" class="col-sm-2 text-center">Total Net</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (PlayerResult playerResult in roundResults.GetFligthPlayers(flight))
+                    {
+                        <tr>
+                            <td class="text-center">@playerResult.FlightPosition</td>
+                            <td class="text-center">@playerResult.Player</td>
+                            <td class="text-center">@playerResult.TotalGross</td>
+                            @* <td class="text-center">@(playerResult.TotalGross - playerResult.TotalNet)</td> *@
+                            <td class="text-center">@playerResult.TotalNet</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    }
+    else
+    {
+        <p>No player results to display.</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public RoundResults roundResults { get; set; } = new();
+    private int total;
+}

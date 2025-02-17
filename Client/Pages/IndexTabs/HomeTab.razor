@@ -1,0 +1,56 @@
+﻿@code {
+    [Parameter] public ResultsWrapper ResultsWrapper { get; set; } = default!;
+    [Parameter] public bool AllowCourseNameEdits { get; set; }
+    [Parameter] public bool AllowDatePlayedEdits { get; set; }
+    [Parameter] public bool IsToday { get; set; }
+    [Parameter] public EventCallback DeleteResults { get; set; }
+    [Parameter] public string HtmlMessage { get; set; } = string.Empty;
+    [Parameter] public EventCallback HandleChildChanged { get; set; }
+}
+
+<div class="vga-background container-fluid">
+    <div class="row">
+        @if (ResultsWrapper.RoundResults != null)
+        {
+            <EditForm Model="@ResultsWrapper.RoundResults">
+                <br>
+                <label style="font-size: 1.5em;">
+                    <b>Current Course Name: </b>
+                    <InputText @bind-Value="@ResultsWrapper.RoundResults.CourseName" disabled="@(!AllowCourseNameEdits)" />
+                </label>
+                <label style="font-size: 1.5em;">
+                    <b>Date: </b>
+                    <input type="date" @bind="ResultsWrapper.RoundResults.DateOfPlay" disabled="@(!AllowDatePlayedEdits)" />
+                </label>
+                <p></p>
+                <label style="font-size: 1.5em;">
+                    <input class="form-check-input" type="checkbox" @bind="ResultsWrapper.RoundResults.IsOfficial">
+                    <b>  Check here to Publish the Round </b>
+                </label>
+
+                @if (IsToday)
+                {
+                    <label style="font-size: 1.5em;">
+                        <b>&nbsp; - You may Delete this round: </b><button class="btn btn-primary" @onclick="DeleteResults" disabled="@(!IsToday)">Delete</button>
+                    </label>
+                }
+            </EditForm>
+        }
+    </div>
+</div>
+<div class="vga-background container-fluid">
+    <p> </p>
+    <RoundHeader HtmlMessage=@HtmlMessage></RoundHeader>
+</div>
+
+@if (ResultsWrapper.RoundResults != null && ResultsWrapper.RoundResults.Players.Count > 0)
+{
+    <div class="container vga-background no-border">
+        <div class="vga-background">
+            <VGARazorLib.PurseSummary roundResults="ResultsWrapper.RoundResults"></VGARazorLib.PurseSummary>
+        </div>
+        <div class="vga-background no-border">
+            <VGARazorLib.PurseSelections roundResults="ResultsWrapper.RoundResults" OnChildChanged="HandleChildChanged"></VGARazorLib.PurseSelections>
+        </div>
+    </div>
+}

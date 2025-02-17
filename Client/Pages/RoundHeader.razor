@@ -1,0 +1,72 @@
+﻿@using Microsoft.Extensions.Configuration
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.WebAssembly.Authentication
+@using Microsoft.AspNetCore
+@using VgaUI.Client.Shared;
+@using VgaUI.Client;
+@using VGARazorLib;
+
+@inject IConfiguration Configuration
+@inject HttpClient Http
+@inject ResultsWrapper resultsWrapper
+@inject NavigationManager NavManager
+@* @inject LocalStorageAccessor LocalStorageAccessor *@
+
+@attribute [Authorize]
+
+@code {
+    List<RoundInfo> rounds = new();
+}
+
+
+<div class="vga-background container-fluid">
+
+    <div>
+        <div class="alert alert-warning" role="alert">
+            @((MarkupString)HtmlMessage)
+        </div>
+    </div>
+
+    <div class="row">
+        @if (resultsWrapper.RoundResults != null)
+        {
+            <EditForm Model="@resultsWrapper.RoundResults" OnValidSubmit="@Submit">
+                <div>
+                    <br>
+                    <b>Save Changes to the VGA database:    </b><button type="Submit" class="btn btn-primary">Save</button>
+                </div>
+                <div><p></p></div>
+            </EditForm>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string message { get; set; } = "";
+    [Parameter]
+    public string HtmlMessage { get; set; } = "\n<b>RoundHeader default value for the HtmlMessage Parameter";
+    string displayReport = string.Empty;
+
+    private async Task Submit()
+    {
+        await StoreResults();
+    }
+
+    async Task StoreResults()
+    {
+        if (resultsWrapper.RoundResults != null)
+        {
+            displayReport = resultsWrapper.RoundResults.CalculateResults();
+            HtmlMessage = "Saving the round...";
+            StateHasChanged();
+            HttpResponseMessage xxx = await Http.PostAsJsonAsync<RoundResults>("api/RoundResults", resultsWrapper.RoundResults); //Post the wrapper to the DB
+            resultsWrapper.RoundResults = await xxx.Content.ReadFromJsonAsync<RoundResults>() ?? throw new Exception("Received a null response from the server response when saving the round");
+            HtmlMessage = "Round Saved";
+            StateHasChanged();
+            //await LocalStorageAccessor.SetValueAsyncJson<RoundResults>("currentRoundResults", resultsWrapper.RoundResults); // Save it to session storage
+            NavManager.NavigateTo("/");
+        }
+    }
+
+}

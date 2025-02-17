@@ -1,0 +1,41 @@
+﻿name: Build, Test, and Push Docker Image
+
+on:
+  push:
+    branches:
+      - main  # Change this to your default branch
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '8.0.x'  # Change this to your .NET version
+
+    - name: Restore dependencies
+      run: dotnet restore Server/VgaUI.Server.csproj
+
+    - name: Build
+      run: dotnet build Server/VgaUI.Server.csproj --configuration Release --no-restore
+
+    - name: Run tests
+      run: dotnet test Server/VgaUI.Server.csproj --no-restore --verbosity normal
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    - name: Get current datetime
+      id: datetime
+      run: echo "DATETIME=$(date +'%Y%m%d%H%M')" >> $GITHUB_ENV
+
+    - name: Build Docker image
+      run: docker build -t my-private-registry.com/my-image:${{ env.DATETIME }} .
+
+    # - name: Push Docker image
+    #   run: docker push my-private-registry.com/my-image:${{ env.DATETIME }}

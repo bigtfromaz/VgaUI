@@ -1,0 +1,100 @@
+﻿@using VgaUI.Shared
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+
+<div class="container-fluid no-border">
+
+    @code {
+        [Parameter]
+        public List<PlayerStats> playerStats { get; set; } = new();
+
+        public IQueryable<PlayerStats>? queryData;
+
+        PaginationState pagination = new PaginationState { ItemsPerPage = 500 };
+
+
+    }
+
+    @if (queryData == null || queryData.Count() < playerStats.Count()) queryData = playerStats.AsQueryable();
+    @if (queryData != null && queryData.Any())
+    {
+        <div class="no-border vga-background sticky-top">
+            <h4>VGA Standings</h4>
+            <strong><b>Check</b> these categories and <b>Click</b> headings to sort: </strong>
+            <label><input type="checkbox" checked="@bigDog" @onclick="()=>ToggleCheckbox(BIGDOG)" />Big Dog</label>
+            <label><input type="checkbox" checked="@money" @onclick="()=>ToggleCheckbox(MONEY)" />Money</label>
+            <label><input type="checkbox" checked="@scores" @onclick="()=>ToggleCheckbox(SCORES)" />Scores</label>
+
+        </div>
+        <div class="no-border">
+            <QuickGrid Theme="corporate" Items="@queryData" class="table  table-striped  bg-light ">
+                <PropertyColumn Property="@(p => p.Player)" Sortable="true" Title="Player" Align="Align.Start" />
+                <PropertyColumn Property="@(p => p.TimesPlayed)" Sortable="true" Title="Rounds" Align="Align.Center" />
+                @if (bigDog)
+                {
+                    <PropertyColumn Property="@(p => p.SaturdayPoints)" IsDefaultSortColumn Sortable="true" Title="Points (Sat)" Align="Align.Center" />
+                    <PropertyColumn Property="@(p => p.WednesdayPoints)" Sortable="true" Title="Points (Wed)" Align="Align.Center" />
+                }
+                @if (scores)
+                {
+                    <PropertyColumn Property="@(p => p.AverageGross)" Format="0.00" Sortable="true" Title="Avg Gross" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.AverageNet)" Format="0.00" Sortable="true" Title="Avg Net" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.LowGross)" Format="0.00" Sortable="true" Title="Low Gross" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.LowNet)" Format="0.00" Sortable="true" Title="Low Net" Align="Align.End" />
+                }
+                @if (money)
+                {
+                    <PropertyColumn Property="@(p => p.TotalPurse)" Format="C" Sortable="true"
+                                            IsDefaultSortColumn InitialSortDirection="SortDirection.Descending"
+                                            Title="$Total" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.LowNetPurse)" Format="C" Sortable="true" Title="$Low Net" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.SkinsPurse)" Format="C" Sortable="true" Title="$Skins" Align="Align.End" />
+                    <PropertyColumn Property="@(p => p.CtpPurse)" Format="C" Sortable="true" Title="$CTP" Align="Align.End" />
+                }
+            </QuickGrid>
+        </div>
+    }
+
+</div>
+
+@* <style type="text/css">
+</style>
+ *@
+@code {
+    const string MONEY = "money";
+    const string SCORES = "scores";
+    const string BIGDOG = "bigDog";
+    bool money = false;
+    bool scores = false;
+    bool bigDog = true;
+
+    void ToggleCheckbox(string checkbox)
+    {
+        if (checkbox == BIGDOG)
+        {
+            money = false;
+            scores = false;
+            bigDog = true;
+        }
+        else if (checkbox == MONEY)
+        {
+            bigDog = false;
+            scores = false;
+            money = true;
+        }
+        else if (checkbox == SCORES)
+        {
+            bigDog = false;
+            money = false;
+            scores = true;
+        }
+    }
+    protected override async Task OnInitializedAsync()
+    {
+
+        queryData = playerStats.AsQueryable();
+        await Task.Delay(1);
+    }
+
+
+}

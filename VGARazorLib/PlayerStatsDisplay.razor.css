@@ -1,0 +1,64 @@
+﻿/*
+    rust #af8e54 or #B94700 or #C74C00;
+    dark brown #af7d54;
+    light background #e2d071;
+
+*/
+body {
+}
+::deep .quickgrid[theme=corporate] body {
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    /*font-family: 'Comic Sans MS', 'Times New Roman', serif;*/
+    color: #af7d54;
+}
+.min-width-col {
+    min-width: 10px; /* Set your desired minimum width */
+}
+::deep .quickgrid[theme=corporate] .sort-indicator {
+/*    color: white; */
+    filter: invert(100%) sepia(0%) saturate(7500%) hue-rotate(151deg) brightness(115%) contrast(102%);
+}
+::deep .quickgrid[theme=corporate] thead th {
+    position: sticky;
+    top: 60px;
+    background-color: #6E2A00; /* Add your preferred background color */
+    color: white;
+    -webkit-text-fill-color: white;
+    z-index: auto; /* Ensure it appears above other elements */
+}
+::deep .quickgrid[theme=corporate] .col-title {
+    gap: 0.4rem; /* Separate the sort indicator from title text */
+    font-weight: bold;
+    font-style: normal;
+    color: white;
+    text-transform: uppercase;
+}
+::deep.quickgrid[theme=corporate] .sort-indicator {
+}
+
+::deep .quickgrid[theme=corporate] button.col-title:hover, ::deep .quickgrid[theme=corporate] .col-options-button:hover {
+    background-color: #af7d54;
+    color: #af8e54;
+}
+
+::deep .quickgrid[theme=corporate] button.col-title:active, ::deep .quickgrid[theme=corporate] .col-options-button:active {
+    background-color: #af7d54;
+    color: #af8e54;
+}
+
+/* Custom media query for small viewports */
+    @media (min-width: 100px) {
+        .min-width-col {
+            min-width: 10px; /* Set your desired minimum width */
+        }
+    }
+    /* Subtle stripe effect */
+/*    :: deep tr:nth-child(even) {
+    background: rgba(255,255,255,0.4);
+}
+*/
+/*::deep table {
+    min-width: 50%;
+    
+}
+*/

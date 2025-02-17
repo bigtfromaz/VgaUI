@@ -1,0 +1,32 @@
+docker stop VGAUI
+docker rm   VGAUI
+
+#Powershell
+docker run --hostname=vgauiserver `
+--rm `
+--env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin `
+--env=ASPNETCORE_URLS=http://+:5000 `
+--env=DOTNET_RUNNING_IN_CONTAINER=true `
+--env=AzureAd__ClientSecret="client secret" `
+--env=AzureAd__Domain="redacted.onmicrosoft.com" `
+--env=AzureAd__TenantId="tenant id" `
+--env=AzureAd__ClientId="client id" `
+--env=MongoDB__ConnectionURI="mongodb connection string", `
+--publish 5000:5000 `
+--name=VGAUI `
+registry.obj-ex.net/vgaui:latest VgaUI.Server.exe
+
+#Linux
+docker run --hostname=vgauiserver \
+--rm \
+--env=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
+--env=ASPNETCORE_URLS=http://+:5000 \
+--env=DOTNET_RUNNING_IN_CONTAINER=true \
+--env=AzureAd__ClientSecret="client secret" \
+--env=AzureAd__Domain="redacted.onmicrosoft.com" \
+--env=AzureAd__TenantId="tenant id" \
+--env=AzureAd__ClientId="client id" \
+--env=MongoDB__ConnectionURI="mongodb connection string", \
+--publish 5020:5000 \
+--name=VGAUI \
+registry.obj-ex.net/vgaui:latest VgaUI.Server.exe
