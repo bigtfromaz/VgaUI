@@ -12,6 +12,7 @@
 	<PropertyGroup>
 		<InvariantGlobalization>true</InvariantGlobalization>
 		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<UserSecretsId>49878daa-7a96-4acb-ac5e-c5ef5c5dc71f</UserSecretsId>
 	</PropertyGroup>
 	<ItemGroup>
 	  <Compile Remove="published\**" />
@@ -20,13 +21,14 @@
 	  <None Remove="published\**" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.8" />
-		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.4" />
-		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore" Version="8.0.4" />
-		<PackageReference Include="MongoDB.Bson" Version="2.28.0" />
-		<PackageReference Include="MongoDB.Driver" Version="2.28.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.7.3" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.13" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.2" />
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.1" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.EntityFrameworkCore" Version="8.0.7" />
+		<PackageReference Include="MongoDB.Bson" Version="3.2.0" />
+		<PackageReference Include="MongoDB.Driver" Version="3.2.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 	</ItemGroup>
   <ItemGroup>
     <TrimmerRootAssembly Include="Microsoft.Authentication.WebAssembly.Msal" />
@@ -38,10 +40,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" NoWarn="NU1605" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.8" NoWarn="NU1605" />
-		<PackageReference Include="Microsoft.Identity.Web" Version="3.1.0" />
-		<PackageReference Include="Microsoft.Identity.Web.UI" Version="3.1.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.13" NoWarn="NU1605" />
+		<PackageReference Include="Microsoft.Identity.Web" Version="3.7.1" />
+		<PackageReference Include="Microsoft.Identity.Web.UI" Version="3.7.1" />
 	</ItemGroup>
 
 	<ItemGroup>
